@@ -20,10 +20,19 @@ Generally, comments for explaining functionality and how to adapt code is writte
 ## The folder contains the following folders and files
 
 ### Folder: Data-quality-report
-R project file (the file to open when working with the project)
+Overall project files
 
-- QA_report_for_publication.Rproj
+- Data_quality_report.Rproj (file to open)
 - Data_quality_report.Rmd (the document to knit)
+- README.md
+- .gitignore
+---------------------------------
+
+### Folder: assets
+Additional files required to run the report.
+
+- MISTRAL_CSS_style.css (to create the right style of the report)
+- logo-mistral-hor-hr.jpg (MISTRAL logo)
 ---------------------------------
 
 ### Folder: data
@@ -33,30 +42,6 @@ Files containing the randomized and anonymized csv formatted data.
 - Visits_API_download_randomised.csv
 - FreezeLab_randomised.csv
 - ShippedSamples_randomised.csv
----------------------------------
-
-### Folder: R/formatting_scripts
-Scripts to format the API download datasets (in this example case, the files in the data folder).
-
-- DataFormatting_Clinical.R
-- DataFormatting_Visits.R
----------------------------------
-
-
-### Folder: R/child_scripts
-Scripts to create the sub-sections (child documents) of the report - these are not run on their own when creating the final report.
-
-- Child_VisitsForm.Rmd (called within QA_report_main.Rmd)
-- Child_ClinicalForm.Rmd (called within QA_report_main.Rmd)
-- Child_SampleTracking.Rmd (called within Child_VisitsForm.Rmd)
----------------------------------
-
-
-### Folder: assets
-Additional files required to run the report.
-
-- MISTRAL_CSS_style.css (to create the right style of the report)
-- logo-mistral-hor-hr.jpg (MISTRAL logo)
 ---------------------------------
 
 ### Folder: data/derived
@@ -71,6 +56,21 @@ R data files used internally in the report.
 The HTML data quality report.
 
 - Data_quality_report.html (the report to view)
+---------------------------------
+
+### Folder: src/child_scripts
+Scripts to create the sub-sections (child documents) of the report - these called within the main R Markdown file when creating the final report.
+
+- Child_VisitsForm.Rmd (called within QA_report_main.Rmd)
+- Child_ClinicalForm.Rmd (called within QA_report_main.Rmd)
+- Child_SampleTracking.Rmd (called within Child_VisitsForm.Rmd)
+---------------------------------
+
+### Folder: src/formatting_scripts
+Scripts to format the API download datasets (in this example case, the files in the data folder).
+
+- DataFormatting_Clinical.R
+- DataFormatting_Visits.R
 ---------------------------------
 
 ### Folder: renv
