@@ -4,7 +4,7 @@ This git repository contains the code and datafiles to produce an anonymized dat
 The anonymized data quality report (a simplified example of the one used for data quality assurance in the MISTRAL study) can be created by opening the R project file ("Project_data_quality_report.Rproj"). This should open the main R Markdown script ("R/Data_quality_report.Rmd") which can be knit to render the HTML report ("output/Data_quality_report.html").
 
 
-## How to adapt report to new study
+## How to adapt the report to a new study
 
 In order to adapt this framework to a new study collecting data through REDCap, the following steps should be followed:
 1) API tokens should be generated for each REDCap project to be included in the report.
@@ -15,7 +15,7 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 6) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
 Generally, comments for explaining functionality and how to adapt code is written directly in the scripts to edit.
 
-## The folder contains the following folders and files:
+## The folder contains the following folders and files
 
 ### Folder: Data-quality-report
 R project file (the file to open when working with the project)
