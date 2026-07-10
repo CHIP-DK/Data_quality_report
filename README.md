@@ -26,6 +26,8 @@ Overall project files
 - Data_quality_report.Rmd (the document to knit)
 - README.md
 - .gitignore
+- renv.lock (holds information on required packages and versions)
+- .Rprofile (renv file)
 ---------------------------------
 
 ### Folder: assets
@@ -58,6 +60,14 @@ The HTML data quality report.
 - Data_quality_report.html (the report to view)
 ---------------------------------
 
+### Folder: renv
+Folder automatically created by the renv package - used to track packages and package versions required to run code.
+
+- activate.R
+- .gitignore
+---------------------------------
+
+
 ### Folder: src/child_scripts
 Scripts to create the sub-sections (child documents) of the report - these called within the main R Markdown file when creating the final report.
 
@@ -73,7 +83,3 @@ Scripts to format the API download datasets (in this example case, the files in 
 - DataFormatting_Visits.R
 ---------------------------------
 
-### Folder: renv
----------------------------------
-
----------------------------------
