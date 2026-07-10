@@ -12,20 +12,21 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 2) New data formatting scripts should be downloaded from REDCap and modified if new variables should be included in the report.
 3) The main R Markdown script (Data_quality_report.Rmd) should be modified to the new file names from REDCap.
 4) Child scripts should be modified to customize what is included in the data quality report.
-5) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
-
+5) Change image and CSS styling sheet to create new visual look of the report. File names should be changed in the main R Markdown script.
+6) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
+Generally, comments for explaining functionality and how to adapt code is written directly in the scripts to edit.
 
 ## The folder contains the following folders and files:
 
 ### Folder: Data-quality-report
-#### R project file (the file to open when working with the project)
+R project file (the file to open when working with the project)
 
 - QA_report_for_publication.Rproj
 - Data_quality_report.Rmd (the document to knit)
 ---------------------------------
 
 ### Folder: data
-#### Files containing the randomized and anonymized csv formatted data
+Files containing the randomized and anonymized csv formatted data.
 
 - Clinical_API_download_randomised.csv
 - Visits_API_download_randomised.csv
@@ -34,7 +35,7 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 ---------------------------------
 
 ### Folder: R/formatting_scripts
-#### Scripts to format the API download datasets (in this example case, the files in the data folder)
+Scripts to format the API download datasets (in this example case, the files in the data folder).
 
 - DataFormatting_Clinical.R
 - DataFormatting_Visits.R
@@ -42,7 +43,7 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 
 
 ### Folder: R/child_scripts
-#### Scripts to create the sub-sections (child documents) of the report - these are not run on their own
+Scripts to create the sub-sections (child documents) of the report - these are not run on their own when creating the final report.
 
 - Child_VisitsForm.Rmd (called within QA_report_main.Rmd)
 - Child_ClinicalForm.Rmd (called within QA_report_main.Rmd)
@@ -51,14 +52,14 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 
 
 ### Folder: assets
-#### Files required to run the report
+Additional files required to run the report.
 
 - MISTRAL_CSS_style.css (to create the right style of the report)
 - logo-mistral-hor-hr.jpg (MISTRAL logo)
 ---------------------------------
 
 ### Folder: data/derived
-HTML report and R data files used internally in the report
+R data files used internally in the report.
 
 - .RData
 - Visit1.Rmd
@@ -66,7 +67,7 @@ HTML report and R data files used internally in the report
 ---------------------------------
 
 ### Folder: output
-#### The HTML data quality report
+The HTML data quality report.
 
 - Data_quality_report.html (the report to view)
 ---------------------------------
