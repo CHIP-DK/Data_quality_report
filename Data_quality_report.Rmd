@@ -1,0 +1,121 @@
+---
+title: '**Data quality report for REDCap data**'
+author: "By Kirstine K. Rasmussen and Sophia Hejndorf"
+date: "Created `r format(Sys.time(), '%d-%m-%Y %X')`"
+output:
+  html_document:
+    css: MISTRAL_CSS_style.css
+    toc: yes
+    toc_float: yes
+    toc_depth: 2
+    collapsed: no
+    theme: simplex
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, encoding = encoding, output_dir = "output") })
+---
+
+<script>
+  $(document).ready(function() {
+    $('#TOC').parent().prepend('<div id=\"nav_logo\"><img src=\"MISTRAL_logo.jpg\"></div>');
+  });
+</script>
+
+<style>
+#TOC {
+  margin-top: 120px;
+}
+#nav_logo {
+  position: fixed;
+  width: 15%;
+  margin-top: 10px;
+}
+</style>
+
+<br>
+
+*This data quality report has been created for publishing. It is a shorter, simplified version of the report used for quality assurance (QA) in the Horizon 2020 funded observational study [MISTRAL](https://www.chip.dk/Research/Studies/MISTRAL). All data has been annonymised and randomised, and only selected sections are included to showcase the usage of the report.*
+
+<br>
+
+```{r setup, include=FALSE}
+
+# Define packages to load (packages needs to be installed using install.packages() before they can be loaded)
+packages <- c("plotly","plyr","tidyverse","DT","data.table","janitor","knitr","scales","Hmisc","httr",
+              "usethis","odbc","DBI","stringr","dplyr","lubridate","heatmaply")
+
+# Check if packages are installed
+missing_packages <- packages[sapply(packages, function(p) system.file(package = p) == "")]
+
+# Install packages not installed
+if(length(missing_packages) > 0) {
+  install.packages(missing_packages, dependencies = TRUE)
+}
+
+# Load all packages
+lapply(packages, require, character.only = TRUE)
+
+# Set up document
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 9) # R Markdown setup
+options(scipen = 999) # Disable scientific notation (e+09)
+options(dplyr.summarise.inform = FALSE) # Disable messages for dplyr
+
+```
+
+```{r style_setup, include=FALSE}
+
+# Define colours to use in all of the report
+colPositive <-  "#6d1c68"
+colNegative <-  "#2d6987"
+colUnknown <-   "#fde333"
+colNA <-        "#969696"
+colYes <-       "#30893b"
+colNo <-        "#cc0000"
+colMISTRAL <-   "#E64659"
+colCD4 <-       "#e28743"
+colCD8 <-       "#0e79af"
+
+# Define styling for tables
+table_style <- 'cell-border stripe hover compact'
+
+```
+
+```{r Get data through API, include=FALSE}
+# #Set up function for API connection to REDCap
+# #NB: Not actively used in the dummy report, but code made available for the reader to implement in their own study.
+# API_get_data <- function(token) {
+#   # Define URL for data retrieval
+#   url <- "https://www.my-url.com"
+#   # Set up certificate verification (safety step)
+#   httr::set_config(httr::config(verbose = FALSE, ssl_verifypeer = TRUE, ssl_verifyhost = 2))
+#   # Get data using specific url and token
+#   result <- redcap_read(redcap_uri = url, token = token)$data
+#   # Return downloaded data
+#   return(result)
+# }
+```
+
+
+```{r Get data from local data file, include=FALSE}
+
+# Load R-formatted Visits form data
+source("scr/formatting_scripts/DataFormatting_Visits.R")
+
+# Save data from each visit in separate dataframes
+Visit1 <- Visits[Visits$redcap_event_name=="visit_1_arm_1",]
+Visit2 <- Visits[Visits$redcap_event_name=="visit_2_arm_1",]
+
+# Save visit dataframes in Rdata objects for use in child documents
+save(Visit1, file="data/derived/Visit1.Rdata")
+save(Visit2, file="data/derived/Visit2.Rdata")
+
+# Load R-formatted Clinical form data
+source("scr/formatting_scripts/DataFormatting_Clinical.R")
+
+```
+
+
+```{r Child documents, child=c('scr/child_scripts/Child_VisitsForm.Rmd', 'scr/child_scripts/Child_ClinicalForm.Rmd')}
+# This chunk should not contain code
+# Used to call child documents with sections for each REDCap form
+#
+```
