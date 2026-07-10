@@ -15,7 +15,7 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 6) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
 
 Generally, comments for explaining functionality and how to adapt code is written directly in the scripts to edit.
-### Remember to store API tokens and sensitive data securely!
+### !!! Remember to store API tokens and sensitive data securely !!!
 
 ## The folder contains the following folders and files
 
