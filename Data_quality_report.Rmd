@@ -4,7 +4,7 @@ author: "By Kirstine K. Rasmussen and Sophia Hejndorf"
 date: "Created `r format(Sys.time(), '%d-%m-%Y %X')`"
 output:
   html_document:
-    css: MISTRAL_CSS_style.css
+    css: assets/MISTRAL_CSS_style.css
     toc: yes
     toc_float: yes
     toc_depth: 2
@@ -16,7 +16,7 @@ knit: (function(inputFile, encoding) {
 
 <script>
   $(document).ready(function() {
-    $('#TOC').parent().prepend('<div id=\"nav_logo\"><img src=\"MISTRAL_logo.jpg\"></div>');
+    $('#TOC').parent().prepend('<div id=\"nav_logo\"><img src=\"assets/MISTRAL_logo.jpg\"></div>');
   });
 </script>
 
@@ -41,7 +41,7 @@ knit: (function(inputFile, encoding) {
 
 # Define packages to load (packages needs to be installed using install.packages() before they can be loaded)
 packages <- c("plotly","plyr","tidyverse","DT","data.table","janitor","knitr","scales","Hmisc","httr",
-              "usethis","odbc","DBI","stringr","dplyr","lubridate","heatmaply")
+              "usethis","odbc","DBI","stringr","dplyr","lubridate","heatmaply","here")
 
 # Check if packages are installed
 missing_packages <- packages[sapply(packages, function(p) system.file(package = p) == "")]
@@ -98,7 +98,7 @@ table_style <- 'cell-border stripe hover compact'
 ```{r Get data from local data file, include=FALSE}
 
 # Load R-formatted Visits form data
-source("scr/formatting_scripts/DataFormatting_Visits.R")
+source("src/formatting_scripts/DataFormatting_Visits.R")
 
 # Save data from each visit in separate dataframes
 Visit1 <- Visits[Visits$redcap_event_name=="visit_1_arm_1",]
@@ -109,12 +109,12 @@ save(Visit1, file="data/derived/Visit1.Rdata")
 save(Visit2, file="data/derived/Visit2.Rdata")
 
 # Load R-formatted Clinical form data
-source("scr/formatting_scripts/DataFormatting_Clinical.R")
+source("src/formatting_scripts/DataFormatting_Clinical.R")
 
 ```
 
 
-```{r Child documents, child=c('scr/child_scripts/Child_VisitsForm.Rmd', 'scr/child_scripts/Child_ClinicalForm.Rmd')}
+```{r Child documents, child=c('src/child_scripts/Child_VisitsForm.Rmd', 'src/child_scripts/Child_ClinicalForm.Rmd')}
 # This chunk should not contain code
 # Used to call child documents with sections for each REDCap form
 #
