@@ -17,10 +17,11 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 
 ## The folder contains the following folders and files:
 
-### Folder: Data-quality-report_Project-folder
+### Folder: Data-quality-report
 #### R project file (the file to open when working with the project)
 
-- QA_report_for_oublication.Rproj
+- QA_report_for_publication.Rproj
+- Data_quality_report.Rmd (the document to knit)
 ---------------------------------
 
 ### Folder: data
@@ -31,14 +32,6 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 - FreezeLab_randomised.csv
 - ShippedSamples_randomised.csv
 ---------------------------------
-
-
-### Folder: R
-#### Script to create the report - this is the file to open and run when you create the report
-
-- Data_quality_report.Rmd (the document to knit)
----------------------------------
-
 
 ### Folder: R/formatting_scripts
 #### Scripts to format the API download datasets (in this example case, the files in the data folder)
