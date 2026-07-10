@@ -1,0 +1,422 @@
+---
+title: "Sample tracking"
+author: "Kirstine K. Rasmussen"
+date: "2023-11-15"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(odbc)
+library(DBI)
+library(tidyr)
+library(dplyr)
+library(DT)
+library(ggplot2)
+library(plotly)
+library(stringr)
+
+table_style='cell-border stripe hover compact'
+```
+
+
+```{r Download data from SQL database via api link, echo=FALSE}
+
+# # For setting up connection to SQL database (FreezeLab)
+# Connect to server
+# con <- DBI::dbConnect(odbc(),
+#                       Driver = "SQL Server",
+#                       Server = "",
+#                       Database = "",
+#                       Trusted_Connection = "True")
+# 
+# # Fetch table of stored samples from SQL database
+# FreezeLab_Mistral <- dbReadTable(con, Id(scema = "dbo", table = ""))
+# 
+# # Fetch table of shipped samples from SQL database
+# Shipped_samples <- dbReadTable(con, Id(scema = "dbo", table = ""))
+
+```
+
+```{r Download data from SQL database via csv file (dummy data), echo=FALSE}
+file_dir <- file_dir <- "L:/AuditData/MISTRAL-REDCap-data/QA_report_for_paper/For publication/FreezeLab_randomised.csv"
+FreezeLab_Mistral <- read.csv(file_dir)
+ 
+file_dir <- file_dir <- "L:/AuditData/MISTRAL-REDCap-data/QA_report_for_paper/For publication/ShippedSamples_randomised.csv"
+Shipped_samples <- read.csv(file_dir)
+```
+
+```{r FreezeLab dataframes, echo=FALSE}
+# Create linking table
+centre_participant_comb <- unique(Shipped_samples[c("centre","ParticipantCode")])
+
+#----------
+#FreezeLab
+#----------
+
+# Create dataframe for samples received per person
+participant_samples_FreezeLab <- FreezeLab_Mistral %>% count(ParticipantCode) %>%
+  dplyr::rename(SamplesReceived = n) %>%
+  merge(., FreezeLab_Mistral, by="ParticipantCode")
+
+centre_participants_FreezeLab <- participant_samples_FreezeLab %>% count(centre) %>% 
+  dplyr::rename(participantsFreezeLab = n)
+
+# Create dataframe for samples received per center
+centre_samples_FreezeLab <- FreezeLab_Mistral %>% count(centre) %>%
+  dplyr::rename(SamplesReceived = n) %>%
+  merge(centre_participants_FreezeLab, .)
+
+#---------------
+#ShippedSamples
+#---------------
+
+participant_samples_Shipped <- Shipped_samples %>%
+  group_by(Visit) %>%
+  count(ParticipantCode) %>%
+  dplyr::rename(SamplesShipped = n) %>%
+  merge(., centre_participant_comb, by="ParticipantCode")
+
+centre_participants_Shipped <- participant_samples_Shipped %>% 
+  group_by(Visit) %>%
+  count(centre) %>% 
+  dplyr::rename(ParticipantsShipped = n)
+
+centre_samples_Shipped <- Shipped_samples %>% count(Visit,centre) %>%
+  dplyr::rename(SamplesShipped = n) %>%
+  merge(centre_participants_Shipped, .)
+
+```
+
+```{r REDCap Visit1, echo=FALSE, include=FALSE, warning=FALSE}
+# Load and format data collected at visit 1
+
+load('Visit1.RData')
+
+Visit1_samples_wide <- Visit1[c("bas_patient","centre","centre_name",
+                                "vis_stool_samp_col_d_1","vis_stool_samp_time_1","vis_stool_samp_rec_d_1",
+                                "es_samp_plasma_d_1","es_samp_wb_d_1",
+                                "es_sample_stool_code_1","es_sample_stool_code_2","es_sample_stool_code_3",
+                                "es_sample_stool_code_4","es_sample_stool_code_5","es_sample_stool_code_6",
+                                "es_sample_plasma_code_1","es_sample_plasma_code_2","es_sample_plasma_code_3",
+                                "es_sample_plasma_code_4","es_sample_plasma_code_5","es_sample_plasma_code_6",
+                                "es_sample_wb_code_1","es_sample_wb_code_2",
+                                "es_sample_wb_code_3","es_sample_wb_code_4")] %>%
+  # Create column of participant "code"
+  mutate(ParticipantCode = as.factor(sub("(.......).*", "\\1", perl = TRUE, .$es_sample_stool_code_1))) %>%
+  # Calculate number of samples listed in REDCap per participant
+  mutate(SamplesMissing = rowSums(is.na(.[10:25]))) %>%
+  mutate(Visit = "Visit 1") %>%
+  # Calculate number of samples not collected per participant
+  mutate(SamplesCollected = 16-SamplesMissing)
+
+# Create long dataframe with samples as rows
+Visit1_samples_REDCap <- gather(Visit1_samples_wide, sample, SampleID, es_sample_stool_code_1:es_sample_wb_code_4, factor_key=TRUE) %>%
+  drop_na(SampleID) %>%
+  mutate(SampleType = case_when(str_detect(sample, regex("stool")) ~ "Stool",
+                                str_detect(sample, regex("plasma")) ~ "Plasma",
+                                str_detect(sample, regex("wb")) ~ "Whole blood")) %>%
+  mutate(Visit = "Visit 1")
+
+#save(Visit1_samples_REDCap, file='Visit1_samples_REDCap.RData')
+
+```
+
+```{r REDCap Visit2, echo=FALSE, include=FALSE, warning=FALSE}
+# Load and format data collected at visit 2
+
+load('Visit2.RData')
+
+Visit2_samples_wide <- Visit2[c("bas_patient","centre","centre_name",
+                                "vis_stool_samp_col_d_1","vis_stool_samp_time_1","vis_stool_samp_rec_d_1",
+                                "es_samp_plasma_d_1","es_samp_wb_d_1",
+                                "es_sample_stool_code_1","es_sample_stool_code_2","es_sample_stool_code_3",
+                                "es_sample_stool_code_4","es_sample_stool_code_5","es_sample_stool_code_6",
+                                "es_sample_plasma_code_1","es_sample_plasma_code_2","es_sample_plasma_code_3",
+                                "es_sample_plasma_code_4","es_sample_plasma_code_5","es_sample_plasma_code_6",
+                                "es_sample_wb_code_1","es_sample_wb_code_2",
+                                "es_sample_wb_code_3","es_sample_wb_code_4")] %>%
+  # Create column of participant "code"
+  mutate(ParticipantCode = as.factor(sub("(.......).*", "\\1", perl = TRUE, .$es_sample_stool_code_1))) %>%
+  # Calculate number of samples listed in REDCap per participant
+  mutate(SamplesMissing = rowSums(is.na(.[10:25]))) %>%
+  mutate(Visit = "Visit 2") %>%
+  # Calculate number of samples not collected per participant
+  mutate(SamplesCollected = 16-SamplesMissing)
+
+# Create long dataframe with samples as rows
+Visit2_samples_REDCap <- gather(Visit2_samples_wide, sample, SampleID, es_sample_stool_code_1:es_sample_wb_code_4, factor_key=TRUE) %>%
+  drop_na(SampleID) %>%
+  mutate(SampleType = case_when(str_detect(sample, regex("stool")) ~ "Stool",
+                                str_detect(sample, regex("plasma")) ~ "Plasma",
+                                str_detect(sample, regex("wb")) ~ "Whole blood")) %>%
+  mutate(Visit = "Visit 2")
+
+```
+
+```{r REDCap Visits, echo=FALSE}
+
+# Create combined table of all samples including their location
+Visit_samples_wide <- rbind(Visit1_samples_wide,Visit2_samples_wide)
+Visit_samples_REDCap <- rbind(Visit1_samples_REDCap,Visit2_samples_REDCap) %>%
+  mutate(SampleStatus = case_when(SampleID %in% FreezeLab_Mistral$SampleID ~ 'In CHIP freezer',
+                                  SampleID %in% Shipped_samples$SampleID ~ 'Shipped from CHIP',
+                                  TRUE ~ 'At site'))
+
+```
+
+
+```{r REDCap dataframes, echo=FALSE}
+# Create dataframe of expected samples per participant
+participant_visit_samples_REDCap <- Visit_samples_wide[c("Visit","bas_patient","ParticipantCode","centre","SamplesMissing","SamplesCollected")] %>%
+  group_by(centre) %>%
+  mutate(SamplesCollected = as.numeric(SamplesCollected))
+
+# Create dataframe of expected samples per centre
+centre_participants_REDCap <- participant_visit_samples_REDCap %>%
+  group_by(Visit) %>%
+  count(centre) %>%
+  dplyr::rename(ParticipantsREDCap = n)
+
+centre_Visit_samples_REDCap <- aggregate(participant_visit_samples_REDCap$SamplesCollected, by=list(participant_visit_samples_REDCap$centre, participant_visit_samples_REDCap$Visit), FUN=sum) %>%
+  dplyr::rename(centre = Group.1) %>% dplyr::rename(Visit = Group.2) %>% dplyr::rename(SamplesCollected = x) %>%
+  merge(centre_participants_REDCap, .)
+
+```
+
+*As part of the MISTRAL study, we request sites to collect 6 stool, 6 plasma, 4 whole blood samples at each visit per participant. Samples are first shipped to the main coordinating centre (CHIP) where they are entered into a local SQL database: FreezeLab. Samples were subsequently shipped to and analysed at IrsiCaixa.*
+
+
+**Total samples found in FreezeLab:** `r nrow(FreezeLab_Mistral)`<br>
+**Total samples shipped to IrsiCaixa:** `r nrow(Shipped_samples)`<br><br>
+**Total visit 1 samples found in REDCap:** `r nrow(Visit1_samples_REDCap)`<br>
+`r nrow(Visit1_samples_REDCap[Visit1_samples_REDCap$SampleID %in% FreezeLab_Mistral$SampleID,])` of these are found in FreezeLab <br>
+`r nrow(Visit1_samples_REDCap[Visit1_samples_REDCap$SampleID %in% Shipped_samples$SampleID,])` of these have been shipped to IrsiCaixa <br><br>
+**Total visit 2 samples found in REDCap:** `r nrow(Visit2_samples_REDCap)` <br>
+`r nrow(Visit2_samples_REDCap[Visit2_samples_REDCap$SampleID %in% FreezeLab_Mistral$SampleID,])` of these are found in FreezeLab <br>
+`r nrow(Visit2_samples_REDCap[Visit2_samples_REDCap$SampleID %in% Shipped_samples$SampleID,])` of these have been shipped to IrsiCaixa <br><br>
+
+
+```{r, include=F}
+# Create separate dataframes for visit 1 and 2
+Visit1_shipped <- Shipped_samples[Shipped_samples$Visit=="Visit 1",]
+Visit2_shipped <- Shipped_samples[Shipped_samples$Visit=="Visit 2",]
+```
+
+
+**Shipped visit 1 samples**
+Faecal samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Stool",])` <br>
+Plasma samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Plasma",])` <br>
+Whole blood samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Whole blood",])` <br>
+
+**Shipped visit 1 samples**
+Faecal samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Stool",])` <br>
+Plasma samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Plasma",])` <br>
+Whole blood samples: `r nrow(Visit1_shipped[Visit1_shipped$SampleType=="Whole blood",])` <br><br>
+
+
+#### Sample status per site {.tabset}
+
+##### All visits
+
+```{r, echo=FALSE}
+
+ggplotly(ggplot(Visit_samples_REDCap, aes(x=centre, fill=SampleStatus)) +
+      geom_bar() +
+      theme_light() +
+      xlab("Centre") +
+      ylab("Count") +
+      ggtitle("Sample status per centre - all visits") +
+      scale_fill_manual(values = c("#e64659", "#90bf5a", "#513ab1")) +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(angle = 45)), height=450)
+
+```
+
+
+##### Visit 1
+
+```{r, echo=FALSE}
+
+ggplotly(ggplot(Visit_samples_REDCap[Visit_samples_REDCap$Visit=="Visit 1",], 
+                aes(x=centre, fill=SampleStatus)) +
+      geom_bar() +
+      theme_light() +
+      xlab("Centre") +
+      ylab("Count") +
+      ggtitle("Sample status per site - visit 1") +
+      scale_fill_manual(values = c("#e64659", "#90bf5a", "#513ab1")) +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(angle = 45)), height=450)
+
+```
+
+##### Visit 2
+
+```{r, echo=FALSE}
+
+ggplotly(ggplot(Visit_samples_REDCap[Visit_samples_REDCap$Visit=="Visit 2",], aes(x=centre, fill=SampleStatus)) +
+      geom_bar() +
+      theme_light() +
+      ggtitle("Sample status per site - visit 2") +
+      xlab("Centre") +
+      ylab("Count") +
+      scale_fill_manual(values = c("#e64659", "#90bf5a", "#513ab1")) +
+      theme(axis.title.x = element_blank(),
+            axis.text.x = element_text(angle = 45)), height=450)
+
+```
+
+#### Detailed participant and sample status per centre
+The tables represent the number of unique participants or samples found in REDCap, FreezeLab and shipment overviews.<br><br>
+
+```{r, echo=FALSE}
+
+FreezeLab_samples <- merge(FreezeLab_Mistral[,c("SampleID","centre","ParticipantCode")],
+      Visit_samples_REDCap[,c("SampleID","Visit")],
+      by="SampleID")
+
+FreezeLab_samples_centre <- FreezeLab_samples %>% count(centre,Visit) %>% 
+  dplyr::rename(SamplesFreezeLab = n)
+
+FreezeLab_participants_centre <- FreezeLab_samples[,c("centre","ParticipantCode","Visit")] %>%
+  unique() %>% count(centre,Visit) %>% 
+  dplyr::rename(ParticipantsFreezeLab = n)
+
+FreezeLab_all <- merge(FreezeLab_samples_centre,
+                       FreezeLab_participants_centre)
+
+Samples_Overview <- merge(centre_Visit_samples_REDCap,
+                          FreezeLab_all,
+                          all=T)
+```
+
+
+```{r, echo=FALSE}
+# Per site
+centre_samples_comp <- Samples_Overview %>% #merge(promised_samples,Samples_Overview,by="centre", all=T) %>%
+  #merge(., centre_samples_FreezeLab, by="centre", all=T ) %>%
+  merge(., centre_samples_Shipped, by=c("centre","Visit"), all=T)  %>%
+  mutate_if(is.integer,~replace(., is.na(.), 0)) %>%
+  mutate(SamplesAtSite = SamplesCollected - (SamplesFreezeLab + SamplesShipped)) %>%
+  group_by("centre","Visit") %>%
+  mutate(Perc_ParticipantsFreezeLab = round(ParticipantsFreezeLab/ParticipantsREDCap*100,1)) %>%
+  mutate(Perc_ParticipantsShipped = round(ParticipantsShipped/ParticipantsREDCap*100,1)) %>%
+  mutate(Perc_SamplesFreezeLab = round(SamplesFreezeLab/SamplesCollected*100,1)) %>%
+  mutate(Perc_SamplesShipped = round(SamplesShipped/SamplesCollected*100,1))
+
+centre_samples_comp %>% 
+  .[c("Visit","centre","ParticipantsREDCap","ParticipantsFreezeLab","ParticipantsShipped")] %>%
+  datatable(.,rownames=FALSE,options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))), 
+            class = table_style, filter = list(position = 'top', clear = TRUE),
+            colnames = c("Visit","Centre","Participants in REDCap","Participants in FreezeLab","Participants shipped"))
+
+centre_samples_comp %>% 
+  .[c("Visit","centre","SamplesCollected","SamplesAtSite","SamplesFreezeLab","SamplesShipped")] %>%
+  datatable(.,rownames=FALSE,options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))), 
+            class = table_style, filter = list(position = 'top', clear = TRUE),
+            colnames = c("Visit","Centre","Samples collected","Samples at site","Samples in FreezeLab","Samples shipped"))
+
+```
+<br><br>
+
+#### Duplicate sample IDs in REDCap
+If the same sample ID has been entered multiple times in the REDCap form. Potential error when the same tube is scanned multiple times or the sample type is wrong.<br>
+*Here you see examples of the same sample IDs used for different participants of used for different samples from the same participant*<br><br>
+
+
+```{r, echo=FALSE}
+# Check for duplicate participant codes
+
+# Count occurrences of sample IDs
+n_occur <- data.frame(table(Visit_samples_REDCap$SampleID))
+# Display sample IDs appearing more than once
+Visit_samples_REDCap[Visit_samples_REDCap$SampleID %in% n_occur$Var1[n_occur$Freq > 1],] %>% 
+  .[c("bas_patient","centre","centre_name","ParticipantCode","SampleID","SampleType","Visit")] %>%
+  datatable(.,rownames=FALSE, options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))), 
+            class = table_style, filter = list(position = 'top', clear = TRUE),
+            colnames=c("Participant ID","Centre","Centre name","Participant code","Sample ID","Sample type","Visit"))
+
+```
+
+<br><br>
+
+#### Duplicate sample IDs in FreezeLab
+Potential error if the same tube was scanned multiple times after being received at CHIP.<br>
+*As the table is empty, none of these errors were found in the data.*<br><br>
+
+```{r, echo=FALSE}
+# Check for duplicate sample IDs
+
+# Count occurrences of sample IDs
+n_occur <- data.frame(table(FreezeLab_Mistral$SampleID))
+# Display sample IDs appearing more than once
+FreezeLab_Mistral[FreezeLab_Mistral$SampleID %in% n_occur$Var1[n_occur$Freq > 1],] %>%
+  datatable(.,rownames=FALSE,options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))), 
+            class = table_style, filter = list(position = 'top', clear = TRUE),
+            colnames = c("Sample ID","Participant ID","Centre","Sample type","Participant code"))
+
+```
+
+
+<br><br>
+
+#### Differences in sample numbers between FreezeLab and REDCap
+If the number of samples reported for a participant in REDCap does not match the number received.<br>
+*Here you see examples where the clinical site has logged 16 samples but only sent 15 or 13 samples to CHIP. We also see, that this problem is not confined to a single centre.*<br><br>
+
+```{r Compare, echo=FALSE}
+# Per participant
+participant_samples_comp <- merge(participant_visit_samples_REDCap,
+                              participant_samples_FreezeLab,
+                              by=c("ParticipantCode","centre")) %>%
+  mutate(Error = ifelse(SamplesCollected==SamplesReceived,0,1))
+  
+
+participant_samples_comp[c("bas_patient","ParticipantCode","centre","SamplesCollected","SamplesReceived","Error")] %>%
+  .[.$Error==1,] %>%
+  .[,1:5] %>%
+  unique() %>%
+  datatable(.,rownames=FALSE, class = table_style, filter = list(position = 'top', clear = TRUE),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))),
+            colnames = c("Participant ID","Participant code","Centre","Samples collected","Samples recieved"))
+
+```
+
+<br><br>
+
+
+#### Sample ID typing errors
+If the sample IDs entered into REDCap do not match the right format. <br>
+*Here you see examples of not using capital letters, using _ instead of -, missing the - completely, or entering ! instead of 1.*<br><br>
+
+```{r, echo=FALSE}
+# Find samples not matching the exact format of sample ID: 3 numbers - 3 numbers - 2 capital letters and 1 number
+sample_errors <- Visit_samples_REDCap %>%
+  mutate(SampleID_error = ifelse(str_detect(SampleID, "^[0-9]{3}-[0-9]{3}-PL|ST|WB[1-6]$"),
+                          0,1))
+
+sample_errors[c("bas_patient","ParticipantCode","centre","Visit","SampleID","SampleID_error")] %>%
+  .[.$SampleID_error==1,] %>%
+  .[,1:5] %>%
+  datatable(.,rownames=FALSE, class = table_style, filter = list(position = 'top', clear = TRUE),
+            options = list(columnDefs = list(list(className = 'dt-center', targets = "_all"))),
+            colnames = c("Participant ID","Participant code","Centre","Visit","Sample ID"))
+
+```
+
+<br><br>
+
+
+
+
+
+
+
+
+
+
+
