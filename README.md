@@ -1,4 +1,3 @@
-------------------------------------------------------------------
 This git repository contains the code and datafiles to produce an anonymized data quality report as described in the paper: "Real-time monitoring of REDCap data using R Markdown to increase data quality and ease quality assurance"
 ------------------------------------------------------------------
 
