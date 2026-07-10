@@ -15,7 +15,7 @@ In order to adapt this framework to a new study collecting data through REDCap, 
 5) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
 
 
-## The folder contains the following files:
+## The folder contains the following folders and files:
 
 ### Folder: Data-quality-report_Project-folder
 #### R project file (the file to open when working with the project)
