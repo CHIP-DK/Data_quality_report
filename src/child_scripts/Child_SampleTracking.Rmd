@@ -8,21 +8,6 @@ editor_options:
     wrap: 72
 ---
 
-```{r, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(odbc)
-library(DBI)
-library(tidyr)
-library(dplyr)
-library(DT)
-library(ggplot2)
-library(plotly)
-library(stringr)
-
-table_style='cell-border stripe hover compact'
-```
-
-
 ```{r Download data from SQL database via API link, echo=FALSE}
 # # For setting up connection to SQL database (FreezeLab)
 # Connect to server
