@@ -7,12 +7,13 @@ The anonymized data quality report (a simplified example of the one used for dat
 ## How to adapt the report to a new study
 
 In order to adapt this framework to a new study collecting data through REDCap, the following steps should be followed:
-1) API tokens should be generated for each REDCap project to be included in the report.
-2) New data formatting scripts should be downloaded from REDCap and modified if new variables should be included in the report.
-3) The main R Markdown script (Data_quality_report.Rmd) should be modified to the new file names from REDCap.
-4) Child scripts should be modified to customize what is included in the data quality report.
-5) Change image and CSS styling sheet to create new visual look of the report. File names should be changed in the main R Markdown script.
-6) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
+1) To implement the Application Programming Interface (API) retrieval of data from REDCap, the code in lines 82-95 of the Data_quality_report.Rmd file should be uncommented and the url edited to fit the path to the REDCap project of interest.
+2) API tokens should be generated for each REDCap project to be included in the report.
+3) New data formatting scripts should be downloaded from REDCap and modified if new variables should be included in the report.
+4) The main R Markdown script (Data_quality_report.Rmd) should be modified to the new file names from REDCap.
+5) Child scripts should be modified to customize what is included in the data quality report.
+6) Change image and CSS styling sheet to create new visual look of the report. File names should be changed in the main R Markdown script.
+7) Knit the main R Markdown script to render the modified HTML report (output/Data_quality_report.html).
 
 Generally, comments for explaining functionality and how to adapt code is written directly in the scripts to edit.
 ### !!! Remember to store API tokens and sensitive data securely !!!
